@@ -26,6 +26,10 @@ usermaxfre = .25
 lents = 2000
 #Use half the value you think you want e.g. 2 gives you a total of 4 poles
 filtercornerpoles = 4
+#Here is the number of seconds before the P-wave arrival
+bfarrival = 120
+#Here is the number of seconds after the S-wave arrival
+afarrival = 120
 
 manstalist=False
 stations=['IU ANMO']
@@ -500,8 +504,8 @@ for sta in stations:
 			break
 	
 	for trace in vertcomps:
-		newstime = trace.stats.starttime + firstarrival - 120
-		newetime = trace.stats.starttime + secondarrival + 120
+		newstime = trace.stats.starttime + firstarrival - bfarrival
+		newetime = trace.stats.starttime + secondarrival + afarrival
 		trace.trim(starttime=newstime,endtime=newetime)
 
 
