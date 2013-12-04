@@ -424,12 +424,14 @@ for sta in stations:
 		paz=getPAZ2(sp,net,cursta,trace.stats.location,trace.stats.channel,eventtime)
 		try:
 			trace.taper(type='cosine')
+			if trace.stats.channel in ('LNZ','LN1','LN2','LNE','LNN'):
+				paz['zeros'].append(0+0j)
 			trace.simulate(paz_remove=paz)
 #Here we filter
 			trace.filter("bandpass",freqmin = userminfre,freqmax= usermaxfre, corners=filtercornerpoles)
 			trace.integrate()
-			if trace.stats.channel == 'LNZ':
-				trace.integrate()
+#			if trace.stats.channel in ('LNZ','LN1','LN2','LNE','LNN'):
+#				trace.integrate()
 			trace.taper(type='cosine')
 			trace.trim(starttime=eventtime + tshift/2,endtime=(eventtime+lents + tshift/2))
 			trace.detrend()
