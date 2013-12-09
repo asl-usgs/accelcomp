@@ -29,10 +29,10 @@ filtercornerpoles = 4
 #Here is the number of seconds before the P-wave arrival
 bfarrival = 120
 #Here is the number of seconds after the S-wave arrival
-afarrival = 120
+afarrival = 600
 
 manstalist=False
-stations=['IU ANMO']
+stations=['IU ANMO', 'IU HRV', 'IU YSS', 'IU CTAO',' IU NWAO']
 
 def getorientation(net,sta,loc,chan,evetime,xseedval):
 #A function to get the orientation of a station at a specific time
@@ -77,7 +77,7 @@ def getdip(net,sta,loc,chan,evetime,xseedval):
 def rotatehorizontal(stream, angle):
 	if stream[0].stats.channel in set(['LHE','LHN']):
 		stream.sort(['channel'],reverse=False)
-		stream[1].data = -stream[1].data
+		stream[1].data = stream[1].data
 #Function to rotate the data by a given angle
         theta_r = math.radians(angle)
 # create new trace objects with same info as previous
