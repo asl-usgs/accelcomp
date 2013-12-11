@@ -75,9 +75,10 @@ def getdip(net,sta,loc,chan,evetime,xseedval):
 	return dip
 
 def rotatehorizontal(stream, angle):
-	if stream[0].stats.channel in set(['LHE','LHN']):
+	if stream[0].stats.channel in set(['LHE','LHN','LNE','LNN']):
 		stream.sort(['channel'],reverse=False)
-		stream[1].data = stream[1].data
+		stream[1].data = - stream[1].data
+
 #Function to rotate the data by a given angle
         theta_r = math.radians(angle)
 # create new trace objects with same info as previous
