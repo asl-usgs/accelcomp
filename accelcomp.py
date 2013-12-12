@@ -75,7 +75,7 @@ def getdip(net,sta,loc,chan,evetime,xseedval):
 	return dip
 
 def rotatehorizontal(stream, angle1,angle2):
-	debugrothor = True
+	debugrothor = False
 	if stream[0].stats.channel in set(['LHE','LHN','LNE','LNN']):
 		stream.sort(['channel'],reverse=False)
 #		stream[1].data = - stream[1].data
