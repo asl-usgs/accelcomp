@@ -31,8 +31,8 @@ bfarrival = 120
 #Here is the number of seconds after the S-wave arrival
 afarrival = 600
 
-manstalist=False
-stations=['IU ANMO', 'IU HRV', 'IU YSS', 'IU CTAO',' IU NWAO']
+manstalist=True
+stations=['IU SAML']
 
 def getorientation(net,sta,loc,chan,evetime,xseedval):
 #A function to get the orientation of a station at a specific time
@@ -74,19 +74,27 @@ def getdip(net,sta,loc,chan,evetime,xseedval):
 						dip = blkt.dip
 	return dip
 
-def rotatehorizontal(stream, angle):
+def rotatehorizontal(stream, angle1,angle2):
+	debugrothor = True
 	if stream[0].stats.channel in set(['LHE','LHN','LNE','LNN']):
 		stream.sort(['channel'],reverse=False)
-		stream[1].data = - stream[1].data
+#		stream[1].data = - stream[1].data
 
 #Function to rotate the data by a given angle
-        theta_r = math.radians(angle)
+        theta_r1 = math.radians(angle1)
+	theta_r2 = math.radians(angle2 - 90) 
+	if debugrothor:
+		print 'Rotating ' + stream[0].stats.channel + ' by: ' + str(angle1) 
+		print 'Rotating ' + stream[1].stats.channel + ' by: ' + str(angle2 - 90)
 # create new trace objects with same info as previous
         rotatedN = stream[0].copy()
         rotatedE = stream[1].copy()
 # assign rotated data
-        rotatedN.data = stream[0].data*math.cos(- theta_r) + stream[1].data*math.sin(- theta_r)
-        rotatedE.data = stream[1].data*math.cos(- theta_r) - stream[0].data*math.sin(- theta_r)
+        rotatedN.data = stream[0].data*math.cos(theta_r1) - stream[1].data*math.sin(theta_r1)
+        rotatedE.data = stream[1].data*math.cos(theta_r2) + stream[0].data*math.sin(theta_r2)
+	if debugrothor:
+		print 'Rotation matrix: ' + str(math.cos(theta_r1)) + ' -' + str(math.sin(theta_r1))
+		print 'Rotation matrix: ' + str(math.cos(theta_r2)) + ' ' + str(math.sin(theta_r2))
 	if rotatedN.stats.location == '20':
 		rotatedN.stats.channel='LNN'
 		rotatedE.stats.channel='LNE'
@@ -468,14 +476,16 @@ for sta in stations:
 		if debug:
 			print "Here are the number of traces:" + str(len(curlochorizontal)) + " which should be 2"
 			print(curlochorizontal)
-		azi=getorientation(net,cursta,curloc,curlochorizontal[0].stats.channel,eventtime,sp)
+		azi1=getorientation(net,cursta,curloc,curlochorizontal[0].stats.channel,eventtime,sp)
+		azi2=getorientation(net,cursta,curloc,curlochorizontal[1].stats.channel,eventtime,sp)
 		if debug:
-			print "Here is the azimuth" + str(azi)
+			print "Here is the azimuth for " + net + " " + cursta + " " + curloc + " " + curlochorizontal[0].stats.channel + str(azi1)
+			print "Here is the azimuth for " + net + " " + cursta + " " + curloc + " " + curlochorizontal[1].stats.channel + str(azi2)
 		curlochorizontal = choptocommon(curlochorizontal)
 		try:
-			finalstream += rotatehorizontal(curlochorizontal,azi)	
+			finalstream += rotatehorizontal(curlochorizontal,azi1,azi2)	
 		except:
-			print 'Can not rotate:' + str(azi)
+			print 'Can not rotate using azi1:' + str(azi1) + ' and azi2:' + str(azi2)
 			
 	if debug:
 		print(finalstream)
