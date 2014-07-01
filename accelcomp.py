@@ -57,7 +57,7 @@ bfarrival = 120
 #Here is the number of seconds after the S-wave arrival
 afarrival = 600
 
-manstalist=True
+manstalist=False
 stations=['IU SAML']
 
 def getorientation(net,sta,loc,chan,evetime,xseedval):
@@ -532,7 +532,7 @@ for sta in stations:
 		paz=getPAZ2(sp,net,cursta,trace.stats.location,trace.stats.channel,eventtime)
 		try:
 
-			trace.taper(type='cosine')
+			trace.taper(max_percentage=0.05, type='cosine')
 #If we have an accelerometer we want an extra zero to go to displacement
 			if trace.stats.channel in ('LNZ','LN1','LN2','LNE','LNN'):
 				paz['zeros'].append(0+0j)
@@ -541,7 +541,7 @@ for sta in stations:
 #Here we filter, integrate, taper, trim, detrend, and filter
 			trace.filter("bandpass",freqmin = userminfre,freqmax= usermaxfre, corners=filtercornerpoles)
 			trace.integrate()
-			trace.taper(type='cosine')
+			trace.taper(max_percentage=0.05, type='cosine')
 			trace.trim(starttime=eventtime + tshift/2,endtime=(eventtime+lents + tshift/2))
 			trace.detrend()
 			trace.filter("bandpass",freqmin = userminfre,freqmax= usermaxfre, corners=filtercornerpoles)
