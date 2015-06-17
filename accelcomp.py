@@ -31,6 +31,7 @@ import numpy
 import matplotlib
 import math
 import warnings
+import argparse
 from matplotlib.pyplot import (figure,axes,plot,xlabel,ylabel,title,subplot,legend,savefig,show,xlim)
 from obspy import read, Stream
 from obspy.core import UTCDateTime
@@ -43,22 +44,63 @@ from obspy.taup.taup import getTravelTimes
 #Here are the various parameters a user might change
 #We might want to put these in a config file to avoid them sitting in the code
 
-debug=False
 datalessloc = '/APPS/metadata/SEED/'
 #Here is the data location use True for xs0 otherwise use false
-dataloc = False
-userminfre = .05
-usermaxfre = .25
-lents = 2000
-#Use half the value you think you want e.g. 2 gives you a total of 4 poles
-filtercornerpoles = 4
-#Here is the number of seconds before the P-wave arrival
-bfarrival = 120
-#Here is the number of seconds after the S-wave arrival
-afarrival = 600
 
-manstalist=False
-stations=['IU SAML']
+
+
+
+
+
+def getargs():
+
+	parser = argparse.ArgumentParser(description = "Program to compare Accelerometer and Broadband data")
+
+	parser.add_argument('-n', type = str, action = "store", \
+		dest = "network", required = True, help = "Network name Example: IU")
+
+	parser.add_argument('-cmt', type = str, action = "store", \
+		dest = "cmt", required = True, help = "CMT Solution")
+
+	parser.add_argument('-resDir',type = str, action = "store", \
+		dest = "resDir", required = True, help = "Result directory name Example: blah")
+
+	parser.add_argument('-debug', action = "store_true", dest = "debug", \
+		default = False, help = "Run in debug mode")
+
+	parser.add_argument('-sta', type = str, action = "store", \
+		dest = "sta", required = False, help = "Stations to use Example with a comma (,) separator : TUC,ANMO")
+
+	parser.add_argument('-tslen', type = int, action ="store", \
+		dest = "lents", required = False, help = "Length of time series in seconds Example:  2000, default is 2000 s")
+
+	parser.add_argument('-dataloc', action = "store_true", dest = "dataloc", \
+		default = False, help = "Use /xs0 data location, otherwise use /tr1 also")
+
+	parser.add_argument('-filter', action = "store", nargs = 3, dest = "filter", required = False, \
+		help = "Filter parameters using minimum period maximum period and number of corners Example: 100 200 4, " + \
+			"default is 4 25 4")
+
+	parser.add_argument('-PS', action = "store", nargs = 2, dest = "ps", required = False, \
+		help = "Time before P and after S, default is 120 before P and 600 after S")
+
+	parserval = parser.parse_args()
+	return parserval
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def getorientation(net,sta,loc,chan,evetime,xseedval):
 #A function to get the orientation of a station at a specific time
@@ -459,13 +501,46 @@ def writestats(statfile,streamin,comp):
 
 
 #Start of the main part of the program
-if not len(sys.argv) == 4:
-	print "Usage: CMT ResultsName Network"
-	exit(0)
- 
-cmtfile = sys.argv[1]
+
+parserval = getargs()
+
+if parserval.dataloc:
+	dataloc = True
+else:
+	dataloc = False
+
+
+debug = parserval.debug
+
+
+if parserval.lents:
+	lents = parserval.lents
+else:
+	lents = 2000
+
+if parserval.filter:
+	userminfre = 1.0/float(parserval.filter[1])
+	usermaxfre = 1.0/float(parserval.filter[0])
+	filtercornerpoles = int(parserval.filter[2])
+else:
+	userminfre = .05
+	usermaxfre = .25
+	#Use half the value you think you want e.g. 2 gives you a total of 4 poles
+	filtercornerpoles = 4
+
+if parserval.ps:
+	bfarrival = int(parserval.ps[0])
+	afarrival = int(parserval.ps[1])
+else:
+	#Here is the number of seconds before the P-wave arrival
+	bfarrival = 120
+	#Here is the number of seconds after the S-wave arrival
+	afarrival = 600
+
+
 
 #Read in the CMT solution 
+cmtfile = parserval.cmt
 if debug:
 	print "We are using local synthetics"
 if not os.path.isfile(cmtfile):
@@ -475,14 +550,14 @@ cmt = tuple(open(cmtfile))
 cmtlat, cmtlon, eventtime, tshift, hdur, dep = readcmt(cmt)
 
 #Lets make a local results directory
-resultdir = sys.argv[2]
+resultdir = parserval.resDir
 if resultdir[-1] == '/':
 	resultdir = resultdir[:-1]
 if not os.path.exists(os.getcwd() + '/' + resultdir):
 	os.mkdir(os.getcwd() + '/' + resultdir)
 
 #Lets get the current network
-curnet = sys.argv[3]
+curnet = parserval.network
 
 #Lets open the results file to write
 statfile = open(os.getcwd() + '/' + resultdir + '/Results' + curnet + '.csv' ,'w')
@@ -499,7 +574,18 @@ except:
 	exit(0)
 
 #If we arent doing manual station lists we need to get one for the network
-if not manstalist:
+if parserval.sta:
+	manstalist = True
+	if debug: 
+		print "We are using a manual station list"
+	stalist = parserval.sta.split(",")
+	stations = []
+	for sta in stalist:
+		stations.append(parserval.network + " " + sta)
+	if debug:
+		print(stations) 
+else:
+	manstalist = False
 	stations = getstalist(sp,eventtime,curnet)
 
 if debug:
