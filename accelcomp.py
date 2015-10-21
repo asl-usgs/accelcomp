@@ -325,6 +325,8 @@ def getdata(net,sta,eventtime,lents,dataloc):
 		else:
 			dataprefix = 'xs0'
 		dataprefix = '/' + dataprefix + '/seed/'
+	if dataloc:
+		dataprefix = '/tr1/telemetry_days/'   
 	if debug:
 		print 'Here is the dataprefix:' + dataprefix
 	datastime = eventtime-prepostwin
