@@ -152,7 +152,7 @@ def getdip(net,sta,loc,chan,evetime,xseedval):
 def rotatehorizontal(stream, angle1,angle2):
 #This function rotates the stream using the two angles
 #This is something currently being debugged with Tyler
-	debugrothor = False
+	debugrothor = True
 	if stream[0].stats.channel in set(['LHE','LHN','LNE','LNN']):
 		stream.sort(['channel'],reverse=False)
 #We need to check if this is necessary or not and when we should rotate or not
@@ -160,14 +160,19 @@ def rotatehorizontal(stream, angle1,angle2):
 
 #Function to rotate the data by a given angle
         theta_r1 = math.radians(angle1)
-	theta_r2 = math.radians(angle2 - 90) 
+        theta_r2 = math.radians(angle2 - 90)
+        #theta_r2 = theta_r1 
 	if debugrothor:
 		print 'Rotating ' + stream[0].stats.channel + ' by: ' + str(angle1) 
 		print 'Rotating ' + stream[1].stats.channel + ' by: ' + str(angle2)
 
 # create new trace objects with same info as previous
+        #if theta_r1 > theta_r2:
+		#	stream.sort(['channel'],reverse=True)		
+
         rotatedN = stream[0].copy()
         rotatedE = stream[1].copy()
+
 
 # assign rotated data
         rotatedN.data = stream[0].data*math.cos(theta_r1) - stream[1].data*math.sin(theta_r1)
@@ -185,8 +190,13 @@ def rotatehorizontal(stream, angle1,angle2):
 		rotatedE.stats.channel='LHE'
 
 # return new streams object with rotated traces
-        streamsR = Stream(traces = [rotatedN, rotatedE])
-        return streamsR
+	if theta_r1 > theta_r2:
+		rotatedE.data = -rotatedE.data
+		rotatedN.data = -rotatedN.data
+		streamsR = Stream(traces = [rotatedE, rotatedN])
+	else:
+		streamsR = Stream(traces = [rotatedN, rotatedE])
+	return streamsR
 
 def choptocommon(stream):
 #A function to chop the data to a common time window
