@@ -789,7 +789,7 @@ for sta in stations:
 	xlim(0,len(tne))
 
 #Finally we need to save the figure
-	savefig(os.getcwd() + '/' + resultdir + '/' + cursta + \
+	savefig(os.getcwd() + '/' + resultdir + '/' + vertcomps[0].stats.network + cursta + \
 	str(vertcomps[0].stats.starttime.year) + str(vertcomps[0].stats.starttime.julday) + \
 	str(vertcomps[0].stats.starttime.hour) + str(vertcomps[0].stats.starttime.minute) + '.jpg', format = 'jpeg', dpi=400)
 
