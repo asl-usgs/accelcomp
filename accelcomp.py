@@ -190,12 +190,12 @@ def rotatehorizontal(stream, angle1,angle2):
 		rotatedE.stats.channel='LHE'
 
 # return new streams object with rotated traces
-	if theta_r1 > theta_r2:
-		rotatedE.data = -rotatedE.data
-		rotatedN.data = -rotatedN.data
-		streamsR = Stream(traces = [rotatedE, rotatedN])
-	else:
-		streamsR = Stream(traces = [rotatedN, rotatedE])
+	#if theta_r1 > theta_r2:
+	#	rotatedE.data = -rotatedE.data
+	#	rotatedN.data = -rotatedN.data
+	#	streamsR = Stream(traces = [rotatedE, rotatedN])
+	#else:
+	streamsR = Stream(traces = [rotatedN, rotatedE])
 	return streamsR
 
 def choptocommon(stream):
