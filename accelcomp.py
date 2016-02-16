@@ -149,54 +149,43 @@ def getdip(net,sta,loc,chan,evetime,xseedval):
 						dip = blkt.dip
 	return dip
 
-def rotatehorizontal(stream, angle1,angle2):
-#This function rotates the stream using the two angles
-#This is something currently being debugged with Tyler
-	debugrothor = True
-	if stream[0].stats.channel in set(['LHE','LHN','LNE','LNN']):
-		stream.sort(['channel'],reverse=False)
-#We need to check if this is necessary or not and when we should rotate or not
-#		stream[1].data = - stream[1].data
+def rotatehorizontal(stream, angle1, angle2):
+    # Switch to E and N
+    debugRot = False
+    if stream[0].stats.channel in set(['LHE', 'LHN', 'BHE', 'BHN']):
+        stream.sort(['channel'], reverse=True)
+        angle1, angle2 = angle2, angle1
+    if debugRot:
+        print(stream)
+        print 'Angle1: ' + str(angle1) + ' Angle2: ' + str(angle2)
+    theta_r1 = math.radians(angle1)
+    theta_r2 = math.radians(angle2)
+    swapSecond = False
+    if (angle2 >= 180. and angle2 <= 360.) or angle2 == 0.:
+        swapSecond = True 
+    # if the components are swaped swap the matrix
+    if theta_r1 > theta_r2 and swapSecond:
+        if debugRot:
+            print 'Swap the components: ' + str((360. - angle1) - angle2)
+        stream.sort(['channel'], reverse=True)
+        theta_r1, theta_r2 = theta_r2, theta_r1
+        print(stream)
+    # create new trace objects with same info as previous
+    rotatedN = stream[0].copy()
+    rotatedE = stream[1].copy()
+    # assign rotated data
+    rotatedN.data = stream[0].data*math.cos(-theta_r1) +\
+        stream[1].data*math.sin(-theta_r1)
+    rotatedE.data = -stream[1].data*math.cos(-theta_r2-math.pi/2.) +\
+        stream[0].data*math.sin(-theta_r2-math.pi/2.)
+    rotatedN.stats.channel = 'LHN'
+    rotatedE.stats.channel = 'LHE'
+    # return new streams object with rotated traces
+    streamsR = Stream(traces=[rotatedN, rotatedE])
+    return streamsR
 
-#Function to rotate the data by a given angle
-        theta_r1 = math.radians(angle1)
-        theta_r2 = math.radians(angle2 - 90)
-        #theta_r2 = theta_r1 
-	if debugrothor:
-		print 'Rotating ' + stream[0].stats.channel + ' by: ' + str(angle1) 
-		print 'Rotating ' + stream[1].stats.channel + ' by: ' + str(angle2)
-
-# create new trace objects with same info as previous
-        #if theta_r1 > theta_r2:
-		#	stream.sort(['channel'],reverse=True)		
-
-        rotatedN = stream[0].copy()
-        rotatedE = stream[1].copy()
 
 
-# assign rotated data
-        rotatedN.data = stream[0].data*math.cos(theta_r1) - stream[1].data*math.sin(theta_r1)
-        rotatedE.data = stream[1].data*math.cos(theta_r2) + stream[0].data*math.sin(theta_r2)
-	if debugrothor:
-		print 'Rotation matrix: ' + str(math.cos(theta_r1)) + ' -' + str(math.sin(theta_r1))
-		print 'Rotation matrix: ' + str(math.cos(theta_r2)) + ' ' + str(math.sin(theta_r2))
-
-#Lets rename the channels to N,E instead of 1 and 2
-	if rotatedN.stats.location == '20':
-		rotatedN.stats.channel='LNN'
-		rotatedE.stats.channel='LNE'
-	else:
-		rotatedN.stats.channel='LHN'
-		rotatedE.stats.channel='LHE'
-
-# return new streams object with rotated traces
-	#if theta_r1 > theta_r2:
-	#	rotatedE.data = -rotatedE.data
-	#	rotatedN.data = -rotatedN.data
-	#	streamsR = Stream(traces = [rotatedE, rotatedN])
-	#else:
-	streamsR = Stream(traces = [rotatedN, rotatedE])
-	return streamsR
 
 def choptocommon(stream):
 #A function to chop the data to a common time window
