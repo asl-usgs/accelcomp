@@ -38,6 +38,6 @@ The plotting feature needs to be pulled out and put in a function
 
 This code should be merged with the synthetics to avoid duplicate functions
 
-
+Need to combine both the trigger and the non-trigger versions to deal with different units
 
 
