@@ -32,9 +32,9 @@ import argparse
 from matplotlib.pyplot import (figure,axes,plot,xlabel,ylabel,title,subplot,legend,savefig,show,xlim)
 from obspy import read, Stream
 from obspy.core import UTCDateTime
-from obspy.xseed import Parser
+from obspy.io.xseed import Parser
 from time import gmtime, strftime
-from obspy.core.util.geodetics import gps2DistAzimuth
+from obspy.geodetics import gps2dist_azimuth
 from obspy.signal.cross_correlation import xcorr
 from obspy.taup.taup import getTravelTimes
 
@@ -303,9 +303,8 @@ def readcmt(cmt):
         print 'Minute:' + str(eventtime.minute)
     return cmtlat, cmtlon, eventtime, tshift,hdur,dep
 
-def getdata(net,sta,eventtime,lents,dataloc):
+def getdata(net, sta, eventtime, lents, dataloc, debug=False):
 #This function goes to one of the archives and gets the data
-    debuggetdata = False
 
 #Here are some hard coded values probably only necessary when messing with this function
     preeventday = eventtime - 24*60*60
@@ -316,11 +315,8 @@ def getdata(net,sta,eventtime,lents,dataloc):
         dataprefix = '/tr1/telemetry_days/'
     else:
 #Not using /tr1 data so lets get it from the archive
-        if net in set(['IW','NE','US']):    
-            dataprefix = 'xs1'    
-        else:
-            dataprefix = 'xs0'
-        dataprefix = '/' + dataprefix + '/seed/'
+
+        dataprefix = '/msd/'
     if dataloc:
         dataprefix = '/tr1/telemetry_days/'   
     if debug:
@@ -333,32 +329,32 @@ def getdata(net,sta,eventtime,lents,dataloc):
 #Maybe we need a function to get the data from /xs0 or /tr1 without this mess
 #Here we pull the event data, post event data, and the pre event data for the LH
     st = read( frstring + str(eventtime.year) + \
-    '/' + str(eventtime.year) + '_' + str(eventtime.julday).zfill(3) + '*/*LH*.seed', \
+    '/*' + str(eventtime.julday).zfill(3) + '*/*LH*.seed', \
     starttime=datastime,endtime=dataetime)
     
     st += read( frstring + str(posteventday.year) + \
-    '/' + str(posteventday.year) + '_' + str(posteventday.julday).zfill(3) + '*/*LH*.seed', \
+    '/*' + str(posteventday.julday).zfill(3) + '*/*LH*.seed', \
     starttime=datastime,endtime=dataetime)
     
     st += read(frstring + str(preeventday.year) + \
-    '/' + str(preeventday.year) + '_' + str(preeventday.julday).zfill(3) + '*/*LH*.seed', \
+    '/*' + str(preeventday.julday).zfill(3) + '*/*LH*.seed', \
     starttime=datastime,endtime=dataetime)
 
 #Here we pull the event data, post event data, and the pre event data for the LN
     st += read(frstring + str(eventtime.year) + \
-    '/' + str(eventtime.year) + '_' + str(eventtime.julday).zfill(3) + '*/*LN*.seed', \
+    '/*' + str(eventtime.julday).zfill(3) + '*/*LN*.seed', \
     starttime=datastime,endtime=dataetime)
 
     st += read(frstring + str(posteventday.year) + \
-    '/' + str(posteventday.year) + '_' + str(posteventday.julday).zfill(3) + '*/*LN*.seed', \
+    '/*' + str(posteventday.julday).zfill(3) + '*/*LN*.seed', \
     starttime=datastime,endtime=dataetime)
 
     st += read(frstring + str(preeventday.year) + \
-    '/' + str(preeventday.year) + '_' + str(preeventday.julday).zfill(3) + '*/*LN*.seed', \
+    '/*' + str(preeventday.julday).zfill(3) + '*/*LN*.seed', \
     starttime=datastime,endtime=dataetime)
 
     st.merge(fill_value='latest')
-    if debuggetdata:
+    if debug:
         print 'We have data'
     return st
 
@@ -689,7 +685,7 @@ for sta in stations:
 #We want to get the distance of the event and of the station
 #We also want the back-azimuth
     lat,lon = getlatlon(cursta,eventtime,sp)
-    dist= gps2DistAzimuth(float(cmtlat),float(cmtlon),lat,lon)
+    dist= gps2dist_azimuth(float(cmtlat),float(cmtlon),lat,lon)
     bazi ="{0:.1f}".format(dist[2])
     dist ="{0:.1f}".format( 0.0089932 * dist[0] / 1000)
     if debug:
