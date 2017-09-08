@@ -606,12 +606,11 @@ for sta in stations:
     cursta = cursta[1]
 
 #Now we get the data for the event
-    #try:
-    if True:    
+    try:
         st = getdata(net,cursta,eventtime,lents,dataloc)
-    #except:
-    #    print('No data for ' + net + ' ' + cursta)
-    #    continue
+    except:
+        print('No data for ' + net + ' ' + cursta)
+        continue
         
 #Lets go through each trace in the stream and deconvolve and filter
     for trace in st:
