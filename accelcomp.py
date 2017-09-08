@@ -323,35 +323,42 @@ def getdata(net, sta, eventtime, lents, dataloc, debug=False):
         print 'Here is the dataprefix:' + dataprefix
     datastime = eventtime-prepostwin
     dataetime = eventtime+lents+prepostwin
-    frstring = dataprefix + net + '_' + sta + '/'
-
+    fstring = dataprefix + net + '_' + sta + '/'
+    path = fstring + str(datastime.year) + '/*' + str(datastime.year).zfill(3) +'*/*'
+    st = read(path + 'LH*.seed')
+    st += read(path + 'LN*.seed')
+    if (dataetime.year > datastime.year) or (dataetime.julday > datastime.julday):
+        path = fstring + str(dataetime.year) + '/*' + str(dataetime.year).zfill(3) +'*/*'
+        st +=  read(path + 'LH*.seed')
+        st += read(path + 'LN*.seed')
+    st.trim(starttime=datastime, endtime=dataetime)
 #This data pull is kind of a mess do we want to change this approach
 #Maybe we need a function to get the data from /xs0 or /tr1 without this mess
 #Here we pull the event data, post event data, and the pre event data for the LH
-    st = read( frstring + str(eventtime.year) + \
-    '/*' + str(eventtime.julday).zfill(3) + '*/*LH*.seed', \
-    starttime=datastime,endtime=dataetime)
+    #st = read( frstring + str(eventtime.year) + \
+    #'/*' + str(eventtime.julday).zfill(3) + '*/*LH*.seed', \
+    #starttime=datastime,endtime=dataetime)
     
-    st += read( frstring + str(posteventday.year) + \
-    '/*' + str(posteventday.julday).zfill(3) + '*/*LH*.seed', \
-    starttime=datastime,endtime=dataetime)
+    #st += read( frstring + str(posteventday.year) + \
+    #'/*' + str(posteventday.julday).zfill(3) + '*/*LH*.seed', \
+    #starttime=datastime,endtime=dataetime)
     
-    st += read(frstring + str(preeventday.year) + \
-    '/*' + str(preeventday.julday).zfill(3) + '*/*LH*.seed', \
-    starttime=datastime,endtime=dataetime)
+    #st += read(frstring + str(preeventday.year) + \
+    #'/*' + str(preeventday.julday).zfill(3) + '*/*LH*.seed', \
+    #starttime=datastime,endtime=dataetime)
 
-#Here we pull the event data, post event data, and the pre event data for the LN
-    st += read(frstring + str(eventtime.year) + \
-    '/*' + str(eventtime.julday).zfill(3) + '*/*LN*.seed', \
-    starttime=datastime,endtime=dataetime)
+##Here we pull the event data, post event data, and the pre event data for the LN
+    #st += read(frstring + str(eventtime.year) + \
+    #'/*' + str(eventtime.julday).zfill(3) + '*/*LN*.seed', \
+    #starttime=datastime,endtime=dataetime)
 
-    st += read(frstring + str(posteventday.year) + \
-    '/*' + str(posteventday.julday).zfill(3) + '*/*LN*.seed', \
-    starttime=datastime,endtime=dataetime)
+    #st += read(frstring + str(posteventday.year) + \
+    #'/*' + str(posteventday.julday).zfill(3) + '*/*LN*.seed', \
+    #starttime=datastime,endtime=dataetime)
 
-    st += read(frstring + str(preeventday.year) + \
-    '/*' + str(preeventday.julday).zfill(3) + '*/*LN*.seed', \
-    starttime=datastime,endtime=dataetime)
+    #st += read(frstring + str(preeventday.year) + \
+    #'/*' + str(preeventday.julday).zfill(3) + '*/*LN*.seed', \
+    #starttime=datastime,endtime=dataetime)
 
     st.merge(fill_value='latest')
     if debug:
@@ -599,11 +606,12 @@ for sta in stations:
     cursta = cursta[1]
 
 #Now we get the data for the event
-    try:
+    #try:
+    if True:    
         st = getdata(net,cursta,eventtime,lents,dataloc)
-    except:
-        print('No data for ' + net + ' ' + cursta)
-        continue
+    #except:
+    #    print('No data for ' + net + ' ' + cursta)
+    #    continue
         
 #Lets go through each trace in the stream and deconvolve and filter
     for trace in st:
