@@ -324,11 +324,11 @@ def getdata(net, sta, eventtime, lents, dataloc, debug=False):
     datastime = eventtime-prepostwin
     dataetime = eventtime+lents+prepostwin
     fstring = dataprefix + net + '_' + sta + '/'
-    path = fstring + str(datastime.year) + '/*' + str(datastime.year).zfill(3) +'*/*'
+    path = fstring + str(datastime.year) + '/*' + str(datastime.julday).zfill(3) +'*/*'
     st = read(path + 'LH*.seed')
     st += read(path + 'LN*.seed')
     if (dataetime.year > datastime.year) or (dataetime.julday > datastime.julday):
-        path = fstring + str(dataetime.year) + '/*' + str(dataetime.year).zfill(3) +'*/*'
+        path = fstring + str(dataetime.year) + '/*' + str(dataetime.julday).zfill(3) +'*/*'
         st +=  read(path + 'LH*.seed')
         st += read(path + 'LN*.seed')
     st.trim(starttime=datastime, endtime=dataetime)
