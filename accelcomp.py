@@ -694,6 +694,7 @@ for sta in stations:
     lat,lon = getlatlon(cursta,eventtime,sp)
     dist= gps2dist_azimuth(float(cmtlat),float(cmtlon),lat,lon)
     bazi ="{0:.1f}".format(dist[2])
+    distDeg = dist[0]
     dist ="{0:.1f}".format( 0.0089932 * dist[0] / 1000)
     if debug:
         print 'Here is the distance:' + str(dist)
@@ -701,7 +702,7 @@ for sta in stations:
 
 #Here is the travel time so we can do the final trim
 #Should this be in a function to avoid it being in the main loop?
-    tt = model.get_travel_times(delta=float(dist), depth = dep) 
+    tt = model.get_travel_times(distance_in_degree =float(distDeg), source_depth_in_km = dep) 
     firstarrival = tt[0]['time']
     for ttphase in tt:
         phasename = ttphase['phase_name']
