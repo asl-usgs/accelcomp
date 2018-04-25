@@ -36,7 +36,7 @@ from obspy.io.xseed import Parser
 from time import gmtime, strftime
 from obspy.geodetics import gps2dist_azimuth
 from obspy.signal.cross_correlation import xcorr
-from obspy.taup.taup import getTravelTimes
+from obspy.taup import TauPyModel
 
 # Here are the various parameters a user might change
 # We might want to put these in a config file to avoid them sitting in the code
@@ -564,7 +564,7 @@ curnet = parserval.network
 statfile = open(os.getcwd() + '/' + resultdir + '/Results' + curnet + '.csv' ,'w')
 statfile.write('net,sta,loc,chan,scalefac,lag,corr\n')
 
-
+model=TauPyModel(model="ak135")
 
 
 #Lets read in the dataless
@@ -701,7 +701,7 @@ for sta in stations:
 
 #Here is the travel time so we can do the final trim
 #Should this be in a function to avoid it being in the main loop?
-    tt = getTravelTimes(delta=float(dist), depth = dep,model='ak135') 
+    tt = model.get_travel_times(delta=float(dist), depth = dep) 
     firstarrival = tt[0]['time']
     for ttphase in tt:
         phasename = ttphase['phase_name']
