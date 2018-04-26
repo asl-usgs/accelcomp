@@ -703,12 +703,12 @@ for sta in stations:
 #Here is the travel time so we can do the final trim
 #Should this be in a function to avoid it being in the main loop?
     tt = model.get_travel_times(distance_in_degree =float(distDeg), source_depth_in_km = dep) 
-    firstarrival = tt[0]['time']
+    firstarrival = tt[0].time
     for ttphase in tt:
-        phasename = ttphase['phase_name']
+        phasename = ttphase.name
         phasename = phasename[:1]
         if phasename == 'S':
-            secondarrival = ttphase['time']
+            secondarrival = ttphase.time
             break
     # Here we do the trim from the phases    
     for trace in vertcomps:
