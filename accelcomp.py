@@ -298,9 +298,9 @@ else:
 
 # Read in the CMT solution from the synthetic directory
 if debug:
-    print "We are using local synthetics"
+    print("We are using local synthetics")
 if not os.path.isfile(parserval.cmt):
-    print "No CMT found"
+    print("No CMT found")
     exit(0)
 try:
     cat = read_events(parserval.cmt)
@@ -341,13 +341,6 @@ statfile.write('net,sta,loc,chan,scalefac,lag,corr\n')
 
 model=TauPyModel(model="ak135")
 
-
-#Lets read in the dataless
-try:
-    sp = Parser(datalessloc + curnet + ".dataless")
-except:
-    print("Can not read the dataless.")
-    exit(0)
 
 #If we arent doing manual station lists we need to get one for the network
 if parserval.sta:
@@ -395,8 +388,8 @@ for sta in stations:
     for tr in st:
         #Here we get the response and remove it
         
-        #try:
-        if True: 
+        try:
+
             tr.taper(max_percentage=0.05, type='cosine')
             #If we have an accelerometer we want an extra zero to go to displacement
             tr.remove_response(inventory = inv, output='DISP')
@@ -406,9 +399,9 @@ for sta in stations:
             tr.trim(starttime=eventtime + tshift/2,endtime=(eventtime+lents + tshift/2))
             tr.detrend()
             tr.filter("bandpass",freqmin = userminfre,freqmax= usermaxfre, corners=filtercornerpoles)
-        #except:
-        #    print('Can not find the response')
-        #    st.remove(tr)
+        except:
+            print('Can not find the response')
+            st.remove(tr)
 
 
     try:
@@ -474,11 +467,11 @@ for sta in stations:
         print("CMT Latitude:" + str(cmtlat))
         print("CMT Longitude:" + str(cmtlon))
     
-#Here we add the distance and the back-azimuth to the legend    
+    #Here we add the distance and the back-azimuth to the legend    
     titlelegend = titlelegend + 'Dist:' + str(dist) 
     titlelegend = titlelegend + ' BAzi:' + str(bazi) 
 
-#Here we add the frequencies
+    #Here we add the frequencies
     minper = "{0:.0f}".format(1/usermaxfre)
     maxper = "{0:.0f}".format(1/userminfre)
     titlelegend = titlelegend + ' ' + str(minper) + '-' + str(maxper) + ' s per.'
