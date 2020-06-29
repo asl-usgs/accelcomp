@@ -318,13 +318,16 @@ except:
         cat = read_events('CMTTEMP')
         os.remove('CMTTEMP')
     except:
-        print "No CMT found"
+        print("No CMT found")
         exit(0)
 if debug:
     print(cat)        
 
 cmtlat, cmtlon, eventtime, tshift, hdur, dep = readcmt(cat)
-
+if eventtime.year <= 21:
+    eventtime.year += 2000
+elif eventtime.year <= 70:
+    eventtime.year += 1900
 #Lets make a local results directory
 resultdir = parserval.resDir
 if resultdir[-1] == '/':
