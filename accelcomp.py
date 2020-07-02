@@ -74,7 +74,7 @@ def getargs():
         dest = "lents", required = False, help = "Length of time series in seconds Example:  2000, default is 2000 s")
 
     parser.add_argument('-dataloc', action = "store_true", dest = "dataloc", \
-        default = False, help = "Use /xs0 data location, otherwise use /tr1 also")
+        default = False, help = "Use /msd data location, otherwise use /tr1 also")
 
     parser.add_argument('-filter', action = "store", nargs = 3, dest = "filter", required = False, \
         help = "Filter parameters using minimum period maximum period and number of corners Example: 100 200 4, " + \
@@ -353,7 +353,7 @@ if parserval.sta:
     stalist = parserval.sta.split(",")
     stations = []
     for sta in stalist:
-        stations.append(parserval.network + " " + sta)
+        stations.append(sta)
     if debug:
         print(stations) 
 else:
